@@ -5,13 +5,22 @@ require 'net/https'
 
 module ThePay
   class Gateway
-    attr_reader :merchant_id, :account_id, :password, :gateway_url
+    attr_reader :merchant_id, :account_id, :password, :gateway_url, :value, :currency, :description, :merchant_data,
+                :customer_email, :return_url, :back_to_eshop_url, :merchant_specific_symbol
 
     def initialize(options = {})
-      @merchant_id        = options[:merchant_id]
-      @account_id         = options[:account_id]
-      @password           = options[:password]
-      @gateway_url        = options[:gateway_url] || 'https://www.thepay.cz/gate'
+      @merchant_id              = options[:merchant_id]
+      @account_id               = options[:account_id]
+      @password                 = options[:password]
+      @gateway_url              = options[:gateway_url] || 'https://www.thepay.cz/gate'
+      @value                    = options[:value]
+      @currency                 = options[:currency] || 'CZK'
+      @descritpion              = options[:description]
+      @merchant_data            = options[:merchant_data]
+      @customer_email           = options[:customer_email]
+      @return_url               = options[:return_url]
+      @back_to_eshop_url        = options[:back_to_eshop_url]
+      @merchant_specific_symbol = options[:merchant_specific_symbol]
     end
 
     # Gets transaction status
