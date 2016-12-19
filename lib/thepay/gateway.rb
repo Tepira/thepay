@@ -9,18 +9,19 @@ module ThePay
                 :customer_email, :return_url, :back_to_eshop_url, :merchant_specific_symbol
 
     def initialize(options = {})
-      @merchant_id              = options[:merchant_id]               || 1
-      @account_id               = options[:account_id]                || 3
       @password                 = options[:password]                  || 'my$up3rsecr3tp4$$word'
       @gateway_url              = options[:gateway_url]               || 'https://www.thepay.cz/demo-gate'
-      @value                    = options[:value]                     || 120
+
+      @merchant_id              = options[:merchant_id]               || 1
+      @account_id               = options[:account_id]                || 3
+      @value                    = options[:value]                     || 120.00
       @currency                 = options[:currency]                  || 'CZK'
-      @descritpion              = options[:description]               || 'test description'
-      @merchant_data            = options[:merchant_data]             || 'returned value from gateway'
+      @description              = options[:description]               || 'testdescription'
+      @merchant_data            = options[:merchant_data]             || 'returned'
       @customer_email           = options[:customer_email]            || 'test@test.com'
       @return_url               = options[:return_url]                || 'http://localhost:3000'
-      @back_to_eshop_url        = options[:back_to_eshop_url]         || ''
-      @merchant_specific_symbol = options[:merchant_specific_symbol]
+      @back_to_eshop_url        = options[:back_to_eshop_url]         || 'http://localhost:3000'
+      @merchant_specific_symbol = options[:merchant_specific_symbol]  || 12354367
     end
 
     # Gets transaction status
@@ -40,11 +41,11 @@ module ThePay
 
     private
     def send_request(options = {})
-      data = prepare_data(options)
+      data = prepare_data
 
       uri = URI('https://www.thepay.cz/demo-gate')
       req = Net::HTTP::Post.new(uri)
-      req.set_form_data('merchantId' => '1', 'accountId' => '3', 'signature' => signature)
+      req.set_form_data(data)
 
       res = Net::HTTP.start(uri.hostname, uri.port) do |http|
         http.request(req)
@@ -60,12 +61,30 @@ module ThePay
       end
     end
 
-    def prepare_data(options = {})
-      sig = Signature.generate(options)
-
-      {
-        # TODO data for request as hash
+    def prepare_data
+      data = {
+        'merchantId' => merchant_id,
+        'accountId' => account_id,
+        'password' => password,
+        'value' => value.to_f,
+        'currency' => currency,
+        'description' => description,
+        'merchantData' => merchant_data,
+        'customerEmail' => customer_email,
+        'returnUrl' => return_url,
+        'backToEshopUrl' => back_to_eshop_url,
+        'merchantSpecificSymbol' => merchant_specific_symbol
       }
+
+      out = ''
+      data.each do |d,e|
+        out = out + (d + '=' + e.to_s + '&')
+      end
+
+      sig = ThePay::Signature.generate_sha256(out)
+      data['signature'] = sig
+      data.except!('password')
+      return data
     end
 
   end

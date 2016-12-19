@@ -9,8 +9,12 @@ module ThePay
   class Signature
 
     # Generates md5 signature
-    def self.generate(*values)
+    def self.generate_md5(*values)
       Digest::MD5.hexdigest(values.join)
+    end
+
+    def self.generate_sha256(*values)
+      Digest::SHA256.digest(values.join)
     end
 
     # Verify signature
