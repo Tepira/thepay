@@ -14,7 +14,7 @@ module ThePay
     end
 
     def self.generate_sha256(*values)
-      Digest::SHA256.digest(values.join)
+      Digest::SHA256.hexdigest(values.join)
     end
 
     # Verify signature
