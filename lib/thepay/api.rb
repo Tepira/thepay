@@ -10,15 +10,16 @@ module ThePay
 
     def initialize(options = {})
       @password                 = options[:password]                  || 'my$up3rsecr3tp4$$word'
-      @api_url                  = options[:gateway_url]               || 'https://www.thepay.cz/demo-gate/api/data/'
+      @api_url                  = options[:api_url]                   || 'https://www.thepay.cz/demo-gate/api/data/'
       @account_id               = options[:account_id]                || 3
       @merchant_id              = options[:merchant_id]               || 1
     end
 
-    # Gets transaction status
-    def get_payments_method
+    # Get all active methods in JSON
+    def get_payment_methods
       add = { :only_active => 1 }
-      res = send_request(add)
+      urlpart = 'getPaymentMethods/'
+      res = send_request(add, urlpart )
       return res
     end
 
@@ -33,15 +34,22 @@ module ThePay
     # TODO more method for API
 
     private
-    def send_request(values={})
+    def send_request(values={}, urlpart)
 
       data = prepare_json(values)
 
-      if res.code == '200'
-        #response = Response.parse(res.body)
-        #verify!(response) if response.status == 'OK'
+     uri = URI(api_url + urlpart)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      request = Net::HTTP::Post.new(uri.path, {'Content-Type' => 'application/json'})
+      request.body = data.to_json
 
-        return res.body
+      res = http.request(request)
+
+      if res.code == '200'
+        response = res.body
+        #verify!(response) if response.status == 'OK'
+        return response
       else
         # TODO raise RequestFailed
       end
@@ -50,6 +58,7 @@ module ThePay
     def prepare_json(values)
       jsondata = {}
        jsondata.merge!('merchantId' => merchant_id)
+       jsondata.merge!('accountId' => account_id)
        jsondata.merge!('onlyActive' => values[:only_active]) if values[:only_active]
       # ...
       # TODO add another json data
