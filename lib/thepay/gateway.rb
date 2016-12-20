@@ -19,8 +19,8 @@ module ThePay
       @description              = options[:description]               || 'testdescription'
       @merchant_data            = options[:merchant_data]             || 'returned'
       @customer_email           = options[:customer_email]            || 'test%40test.com'
-      @return_url               = options[:return_url]                || 'httplocalhost3000'
-      @back_to_eshop_url        = options[:back_to_eshop_url]         || 'httplocalhost3000'
+      @return_url               = options[:return_url]                || 'httplocalhost3000' # TODO do not translate special char
+      @back_to_eshop_url        = options[:back_to_eshop_url]         || 'httplocalhost3000' # TODO do not translate special char
       @merchant_specific_symbol = options[:merchant_specific_symbol]  || 12354367
     end
 

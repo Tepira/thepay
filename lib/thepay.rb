@@ -5,6 +5,7 @@ require 'yaml'
 require 'thepay/version'
 require 'thepay/response'
 require 'thepay/gateway'
+require 'thepay/api'
 require 'thepay/signature'
 require 'thepay/errors'
 

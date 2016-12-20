@@ -6,7 +6,7 @@ require 'json'
 
 module ThePay
   class Api
-    attr_reader :merchant_id, :password, :api_url, :account_id,
+    attr_reader :merchant_id, :password, :api_url, :account_id
 
     def initialize(options = {})
       @password                 = options[:password]                  || 'my$up3rsecr3tp4$$word'
@@ -16,31 +16,26 @@ module ThePay
     end
 
     # Gets transaction status
-    def getPaymentsMethod
-      send_request()
+    def get_payments_method
+      add = { :only_active => 1 }
+      res = send_request(add)
+      return res
     end
 
-    def getPaymentInstructions
+    def get_payment_instructions
       #TODO
     end
 
-    def getPaymentState
+    def get_payment_state
       #TODO
     end
 
     # TODO more method for API
 
     private
-    def send_request(options = {})
-      data = prepare_data
+    def send_request(values={})
 
-      uri = URI('https://www.thepay.cz/demo-gate')
-      req = Net::HTTP::Post.new(uri)
-      req.set_form_data(data)
-
-      res = Net::HTTP.start(uri.hostname, uri.port) do |http|
-        http.request(req)
-      end
+      data = prepare_json(values)
 
       if res.code == '200'
         #response = Response.parse(res.body)
@@ -52,21 +47,24 @@ module ThePay
       end
     end
 
-    def prepare_data
-      data = {
-        'merchantId' => merchant_id,
-        'password' => password,
-      }
+    def prepare_json(values)
+      jsondata = {}
+       jsondata.merge!('merchantId' => merchant_id)
+       jsondata.merge!('onlyActive' => values[:only_active]) if values[:only_active]
+      # ...
+      # TODO add another json data
+       jsondata.merge!('password' => password)
 
       out = ''
-      data.each do |d,e|
+      jsondata.each do |d,e|
         out = out + (d + '=' + e.to_s + '&')
       end
+      out = out[0...-1]
 
-      sig = ThePay::Signature.generate_md5(out)
-      data['signature'] = sig
-      data.except!('password')
-      return data
+      sig = ThePay::Signature.generate_sha256(out)
+      jsondata['signature'] = sig
+      jsondata.except!('password')
+      return jsondata
     end
 
   end
